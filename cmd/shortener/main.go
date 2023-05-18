@@ -14,5 +14,6 @@ func main() {
 	server := http.Server{
 		Addr: "localhost:8080",
 	}
+
 	server.ListenAndServe()
 }
