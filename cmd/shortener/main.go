@@ -9,8 +9,8 @@ import (
 // TODO: вынести хендлеры отдельно в internal/controllers
 
 func main() {
-	http.HandleFunc("/", controllers.HandlerGet)
-	http.HandleFunc("/{id}", controllers.HandlerPost)
+	http.HandleFunc("/", controllers.Shorten)
+	http.HandleFunc("/{id}", controllers.Increase)
 	server := http.Server{
 		Addr: "localhost:8080",
 	}

@@ -1,31 +1,28 @@
 package controllers
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 )
 
-func HandlerGet(w http.ResponseWriter, r *http.Request) {
+func Shorten(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
 	}
-	q := r.URL.Query().Get("query")
-	if q == "" {
-		http.Error(w, "The query parameter is missing", http.StatusBadRequest)
-		return
-	}
-	resp, err := json.Marshal(q)
+
+	resp, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	short := string(resp)
+	w.Header().Set("content-type", "text/plain;charset=utf-8 ")
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(short))
 }
 
-func HandlerPost(w http.ResponseWriter, r *http.Request) {
+func Increase(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
