@@ -13,7 +13,6 @@ import (
 )
 
 func main() {
-
 	// адресс сервиса
 	endpoint := "http://localhost:8080/"
 
