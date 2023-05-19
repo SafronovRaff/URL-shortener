@@ -34,7 +34,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
 	}*/
-	id := strings.TrimPrefix(r.URL.Path, "/")
+	id := strings.TrimPrefix(r.URL.Path, "/id")
 	url, ok := urlMap[id]
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
