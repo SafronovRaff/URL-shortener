@@ -33,7 +33,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	originalURL := "http://example.com/original-url"
+	originalURL := "localhost:8080"
 
 	w.Header().Set("Location", originalURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
