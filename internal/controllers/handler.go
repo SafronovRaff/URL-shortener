@@ -3,7 +3,6 @@ package controllers
 import (
 	"io"
 	"net/http"
-	"strings"
 )
 
 var urlMap = make(map[string]string)
@@ -34,7 +33,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
 	}*/
-	id := strings.TrimPrefix(r.URL.Path, "/id")
+	id := r.URL.Path[len("/"):]
 	url, ok := urlMap[id]
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
