@@ -29,10 +29,10 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
-	/*	if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
-	}*/
+	}
 	id := r.URL.Path[len("/"):]
 	url, ok := urlMap[id]
 	if !ok {
