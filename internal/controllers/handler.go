@@ -7,7 +7,22 @@ import (
 
 var urlMap = make(map[string]string)
 
-func Shorten(w http.ResponseWriter, r *http.Request) {
+type service interface {
+	Shorten(url string) string
+	Increase(id string) (string, error)
+}
+
+type handler struct {
+	service service
+}
+
+func New(service service) *handler {
+	return &handler{
+		service: service,
+	}
+}
+
+func (h *handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
@@ -28,7 +43,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(shortURL))
 }
 
-func Increase(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Increase(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
