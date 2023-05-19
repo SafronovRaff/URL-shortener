@@ -27,14 +27,12 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
 	}
-	id := r.URL.Path[1:]
+	id := r.URL.Query().Get("id")
 	if id == "" {
 		http.Error(w, "The query parameter is missing", http.StatusBadRequest)
 		return
 	}
 
-	originalURL := "localhost:8080"
-
-	w.Header().Set("Location", originalURL)
+	w.Header().Set("Location", id)
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
