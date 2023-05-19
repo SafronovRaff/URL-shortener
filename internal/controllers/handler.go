@@ -34,9 +34,14 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := r.URL.Path[len("/"):]
+	if id == "" {
+		http.Error(w, "id parameter is empty", http.StatusBadRequest)
+		return
+	}
 	url, ok := urlMap[id]
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Location", url)
