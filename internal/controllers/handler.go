@@ -47,5 +47,5 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 // Функция для генерации сокращенного URL
 func shortenURL(url string) string {
 	//TODO тут  будет алгоритм генерации сокращенного URL
-	return "short_" + url
+	return url
 }
