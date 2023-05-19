@@ -1,28 +1,14 @@
 package controllers
 
 import (
+	//"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
 )
 
 var urlMap = make(map[string]string)
 
-type service interface {
-	Shorten(url string) string
-	Increase(id string) (string, error)
-}
-
-type handler struct {
-	service service
-}
-
-func New(service service) *handler {
-	return &handler{
-		service: service,
-	}
-}
-
-func (h *handler) Shorten(w http.ResponseWriter, r *http.Request) {
+func Shorten(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
@@ -43,24 +29,27 @@ func (h *handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(shortURL))
 }
 
-func (h *handler) Increase(w http.ResponseWriter, r *http.Request) {
+func Increase(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
 	}
 	id := r.URL.Path[len("/"):]
+	//	id:= chi.URLParam(r,"id")
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
 	}
+
 	/*	url, ok := urlMap[id]
 		if !ok {
 			http.Error(w, "invalid URL ID", http.StatusBadRequest)
 			return
 		}*/
 	url := id
-	w.Header().Set("Location", url)
-	w.WriteHeader(http.StatusTemporaryRedirect)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	/*	w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusTemporaryRedirect)*/
 }
 
 // Функция для генерации сокращенного URL
