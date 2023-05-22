@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -63,6 +64,11 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	log.Printf("id- %s", id)
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
+		return
+	}
+	parsedURL, err := url.Parse(id)
+	if err != nil || parsedURL.Scheme == "" {
+		http.Error(w, "invalid URL format", http.StatusBadRequest)
 		return
 	}
 
