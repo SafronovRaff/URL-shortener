@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/go-chi/chi/v5"
 	"io"
 	"math/rand"
 	"net/http"
@@ -32,7 +33,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 	//генерируем сокращенный URL с помощью функции shortenURL и закидываем в мапу где сокрURl ключ, а URL значение.
 	short := string(b)
-	shortURL := shortenURL(string(b))
+	shortURL := shortenURL(short)
 	urlMap[shortURL] = short
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain;charset=utf-8 ")
@@ -51,10 +52,10 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//считываем id
-	id := r.URL.Path[len("/"):]
+	//id := r.URL.Path[len("/"):]
 	//	log.Printf("id- %s", id)
-	//id := chi.URLParam(r, "id")
-	//id := chi.URLParam(r, "/")
+	id := chi.URLParam(r, "id")
+
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
