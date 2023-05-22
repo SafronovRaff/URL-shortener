@@ -23,11 +23,11 @@ var mu sync.Mutex
 
 func Shorten(w http.ResponseWriter, r *http.Request) {
 
-	//проверяем, что метод запроса является POST
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
-		return
-	}
+	/*	//проверяем, что метод запроса является POST
+		if r.Method != http.MethodPost {
+			http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
+			return
+		}*/
 	// считываем данные из тела запроса
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -69,6 +69,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	//ищем в мапе оригинальный URL
 	mu.Lock()
 	url, ok := urlMap[id]
+	log.Printf("url %s", url)
 	mu.Unlock()
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
@@ -78,8 +79,6 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	log.Printf("оригинальный URL %s", url)
 	//возвращаем оригинальный URL
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-	/*w.Header().Set("Location", url)
-	w.WriteHeader(http.StatusTemporaryRedirect)*/
 }
 
 // Функция для генерации сокращенного URL
