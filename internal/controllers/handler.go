@@ -19,6 +19,7 @@ var src = rand.NewSource(time.Now().UnixNano()) //используется дл�
 var urlMap = make(map[string]string)            //используется для хранения сокращенных URL на исходных URL
 
 func Shorten(w http.ResponseWriter, r *http.Request) {
+
 	//проверяем, что метод запроса является POST
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
@@ -48,7 +49,8 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 	//считываем id
 	//id := r.URL.Path[len("/"):]
-	id := chi.URLParam(r, "id")
+	//id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "/")
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
