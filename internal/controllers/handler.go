@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	//"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5"
+
 	"io"
 	"net/http"
 )
@@ -34,8 +35,8 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
 	}
-	id := r.URL.Path[len("/"):]
-	//	id:= chi.URLParam(r,"id")
+	//id := r.URL.Path[len("/"):]
+	id := chi.URLParam(r, "id")
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
