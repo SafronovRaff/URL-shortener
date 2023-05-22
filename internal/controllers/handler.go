@@ -38,7 +38,11 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain;charset=utf-8 ")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(shortURL))
+	_, err = w.Write([]byte(shortURL))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
