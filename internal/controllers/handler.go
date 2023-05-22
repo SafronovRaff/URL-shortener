@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/go-chi/chi/v5"
+	//"github.com/go-chi/chi/v5"
 	"io"
 	"math/rand"
 	"net/http"
@@ -52,9 +52,9 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//считываем id
-	//id := r.URL.Path[len("/"):]
+	id := r.URL.Path[len("/"):]
 	//id := chi.URLParam(r, "id")
-	id := chi.URLParam(r, "/")
+	//id := chi.URLParam(r, "/")
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
