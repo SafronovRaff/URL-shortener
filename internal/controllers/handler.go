@@ -23,11 +23,11 @@ var mu sync.Mutex
 
 func Shorten(w http.ResponseWriter, r *http.Request) {
 
-	/*	//проверяем, что метод запроса является POST
-		if r.Method != http.MethodPost {
-			http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
-			return
-		}*/
+	//проверяем, что метод запроса является POST
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
+		return
+	}
 	// считываем данные из тела запроса
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -37,14 +37,14 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	//генерируем сокращенный URL с помощью функции shortenURL и закидываем в мапу где сокрURl ключ, а URL значение.
 	short := string(b)
 	log.Printf("URL значение - %s", short)
-	shortURL := shortenURL(short)
+	shortURL := shortenURL()
 	mu.Lock()
 	urlMap[shortURL] = short
 	mu.Unlock()
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain;charset=utf-8 ")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(short))
+	_, err = w.Write([]byte(shortURL))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -53,10 +53,10 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 
 func Increase(w http.ResponseWriter, r *http.Request) {
 	//проверяем, что метод запроса является Get
-	/*if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
-	}*/
+	}
 	//считываем id
 
 	id := chi.URLParam(r, "id")
@@ -83,13 +83,12 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 }
 
 // Функция для генерации сокращенного URL
-func shortenURL(url string) string {
+func shortenURL() string {
 	rand.Seed(time.Now().UnixNano())
 	n := rand.Intn(15) + 5
 	res := randStringBytes(n)
 	log.Printf("рандом строка %s", res)
-	url = res
-	return url
+	return res
 }
 
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
