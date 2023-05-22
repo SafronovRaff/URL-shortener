@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	//"github.com/go-chi/chi/v5"
 	"io"
 	"math/rand"
 	"net/http"
@@ -53,18 +52,21 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 	//считываем id
 	id := r.URL.Path[len("/"):]
+	//	log.Printf("id- %s", id)
 	//id := chi.URLParam(r, "id")
 	//id := chi.URLParam(r, "/")
 	if id == "" {
 		http.Error(w, "id parameter is empty", http.StatusBadRequest)
 		return
 	}
+
 	//ищем в мапе оригинальный URL
 	url, ok := urlMap[id]
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
 		return
 	}
+	//log.Printf("оригинальный URL %s", url)
 	//возвращаем оригинальный URL
 	w.Header().Set("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
