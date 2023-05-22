@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -35,17 +36,35 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
+	defer r.Body.Close()
 	//генерируем сокращенный URL с помощью функции shortenURL и закидываем в мапу где сокрURl ключ, а URL значение.
-	short := string(b)
-	log.Printf("URL значение - %s", short)
-	shortURL := shortenURL()
+	//short := string(b)
+	//log.Printf("URL значение - %s", short)
+	// Извлечение значения URL из тела запроса
+	var requestData struct {
+		URL string `json:"url"`
+	}
+	err = json.Unmarshal(b, &requestData)
+	if err != nil {
+		http.Error(w, "Недопустимый формат текста запроса", http.StatusBadRequest)
+		return
+	}
+	// Вывод значения URL в лог
+	log.Printf("Извлеченное значение URL: %s", requestData.URL)
+
+	// Генерация случайной строки в качестве ключа
+	key := GenerateRandomString(10)
+
+	// Добавление значения URL в urlMap
 	mu.Lock()
-	urlMap[shortURL] = short
+	urlMap[key] = requestData.URL
+	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", key, requestData.URL)
 	mu.Unlock()
+
 	// возвращаем сокращенный URL
-	w.Header().Set("content-type", "text/plain;charset=utf-8 ")
+	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(shortURL))
+	_, err = w.Write([]byte(key))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -63,22 +82,22 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	log.Printf("id- %s", id)
 	if id == "" {
-		http.Error(w, "id parameter is empty", http.StatusBadRequest)
+		http.Error(w, "параметр id пуст", http.StatusBadRequest)
 		return
 	}
 	parsedURL, err := url.Parse(id)
 	if err != nil || parsedURL.Scheme == "" {
-		http.Error(w, "invalid URL format", http.StatusBadRequest)
+		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
 		return
 	}
 
 	//ищем в мапе оригинальный URL
 	mu.Lock()
 	url, ok := urlMap[id]
-	log.Printf("url %s", url)
+	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, url, ok)
 	mu.Unlock()
 	if !ok {
-		http.Error(w, "invalid URL ID", http.StatusBadRequest)
+		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusBadRequest)
 		return
 	}
 
@@ -87,17 +106,8 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// Функция для генерации сокращенного URL
-func shortenURL() string {
-	rand.Seed(time.Now().UnixNano())
-	n := rand.Intn(15) + 5
-	res := randStringBytes(n)
-	log.Printf("рандом строка %s", res)
-	return res
-}
-
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
-func randStringBytes(n int) string {
+func GenerateRandomString(n int) string {
 	b := make([]byte, n)
 	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {
