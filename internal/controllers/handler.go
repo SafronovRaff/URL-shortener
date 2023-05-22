@@ -42,12 +42,12 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* url, ok := urlMap[id]
+	url, ok := urlMap[id]
 	if !ok {
 		http.Error(w, "invalid URL ID", http.StatusBadRequest)
 		return
-	} */
-	url := id
+	}
+
 	//http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	w.Header().Set("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
