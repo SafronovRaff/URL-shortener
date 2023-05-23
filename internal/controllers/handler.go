@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -67,15 +68,15 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Добавляем схему протокола, если она отсутствует
+	if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
+		id = "http://" + id
+	}
+
 	parsedURL, err := url.Parse(id)
 	if err != nil {
 		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
 		return
-	}
-
-	// Проверяем наличие схемы протокола
-	if parsedURL.Scheme == "" {
-		parsedURL.Scheme = "http"
 	}
 
 	// Ищем оригинальный URL в urlMap
@@ -89,13 +90,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decodedURL, err := url.QueryUnescape(originalURL)
-	if err != nil {
-		http.Error(w, "Ошибка при декодировании URL", http.StatusInternalServerError)
-		return
-	}
-
-	fullURL := parsedURL.Scheme + "://" + decodedURL
+	fullURL := parsedURL.String()
 
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", fullURL)
