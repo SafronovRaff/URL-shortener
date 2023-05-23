@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -24,7 +23,7 @@ var src = rand.NewSource(time.Now().UnixNano()) //используется дл�
 var urlMap = make(map[string]string)            //используется для хранения сокращенных URL на исходных URL
 var mu sync.Mutex
 
-func shorten(w http.ResponseWriter, r *http.Request) {
+func Shorten(w http.ResponseWriter, r *http.Request) {
 	// считываем данные из тела запроса
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -55,61 +54,9 @@ func shorten(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Shorten(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Invalid request method")
-		return
-	}
-
-	url := r.FormValue("url")
-	if url == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "URL is required")
-		return
-	}
-
-	for _, storedURL := range urlMap {
-		if storedURL == url {
-			w.WriteHeader(http.StatusConflict)
-			fmt.Fprintf(w, "Already have this link")
-			return
-		}
-	}
-
-	shortURL := GenerateRandomString(10)
-	urlMap[shortURL] = url
-
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, shortURL)
-}
 func Increase(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Invalid request method")
-		return
-	}
-
-	path := r.URL.Path
-	pathArgs := strings.Split(path, "/")
-
-	shortURL := pathArgs[1]
-	originalURL, ok := urlMap[shortURL]
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Invalid short URL")
-		return
-	}
-
-	w.Header().Set("Location", originalURL)
-	w.WriteHeader(http.StatusTemporaryRedirect)
-}
-
-func increase(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Invalid request method")
+		http.Error(w, "Only GET requests are allowed!", http.StatusMethodNotAllowed)
 		return
 	}
 	id := chi.URLParam(r, "id")
