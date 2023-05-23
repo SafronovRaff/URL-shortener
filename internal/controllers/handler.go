@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -36,35 +35,23 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	defer r.Body.Close()
-	//генерируем сокращенный URL с помощью функции shortenURL и закидываем в мапу где сокрURl ключ, а URL значение.
-	//short := string(b)
-	//log.Printf("URL значение - %s", short)
-	// Извлечение значения URL из тела запроса
-	var requestData struct {
-		URL string `json:"url"`
-	}
-	err = json.Unmarshal(b, &requestData)
-	if err != nil {
-		http.Error(w, "Недопустимый формат текста запроса", http.StatusBadRequest)
-		return
-	}
+	urlString := string(b)
 	// Вывод значения URL в лог
-	log.Printf("Извлеченное значение URL: %s", requestData.URL)
+	log.Printf("Извлеченное значение URL: %s", urlString)
 
 	// Генерация случайной строки в качестве ключа
-	key := GenerateRandomString(10)
+	keyURL := GenerateRandomString(10)
 
 	// Добавление значения URL в urlMap
 	mu.Lock()
-	urlMap[key] = requestData.URL
-	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", key, requestData.URL)
+	urlMap[keyURL] = urlString
+	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
 	mu.Unlock()
 
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(key))
+	_, err = w.Write([]byte(keyURL))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -93,17 +80,17 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 
 	//ищем в мапе оригинальный URL
 	mu.Lock()
-	url, ok := urlMap[id]
-	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, url, ok)
+	shortURL, ok := urlMap[id]
+	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, shortURL, ok)
 	mu.Unlock()
+
 	if !ok {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("оригинальный URL %s", url)
 	//возвращаем оригинальный URL
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, shortURL, http.StatusTemporaryRedirect)
 }
 
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
