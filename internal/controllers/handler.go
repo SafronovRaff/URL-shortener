@@ -31,14 +31,18 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	urlString := string(b)
+	urlString, err := url.QueryUnescape(string(b))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	// Вывод значения URL в лог
 	log.Printf("Извлеченное значение URL: %s", urlString)
 
-	mu.Lock()
 	// Генерация случайной строки в качестве ключа
 	keyURL := GenerateRandomString(10)
 
+	mu.Lock()
 	// Добавление значения URL в urlMap
 	urlMap[keyURL] = urlString
 	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
