@@ -35,11 +35,11 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	// Вывод значения URL в лог
 	log.Printf("Извлеченное значение URL: %s", urlString)
 
+	mu.Lock()
 	// Генерация случайной строки в качестве ключа
 	keyURL := GenerateRandomString(10)
 
 	// Добавление значения URL в urlMap
-	mu.Lock()
 	urlMap[keyURL] = urlString
 	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
 	mu.Unlock()
