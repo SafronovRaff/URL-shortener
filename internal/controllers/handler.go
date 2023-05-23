@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -23,9 +24,8 @@ var src = rand.NewSource(time.Now().UnixNano()) //используется дл�
 var urlMap = make(map[string]string)            //используется для хранения сокращенных URL на исходных URL
 var mu sync.Mutex
 
-func Shorten(w http.ResponseWriter, r *http.Request) {
+func shorten(w http.ResponseWriter, r *http.Request) {
 	// считываем данные из тела запроса
-
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
@@ -38,16 +38,13 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 	// Вывод значения URL в лог
 	log.Printf("Извлеченное значение URL: %s", urlString)
-
 	// Генерация случайной строки в качестве ключа
 	keyURL := GenerateRandomString(10)
-
 	mu.Lock()
 	// Добавление значения URL в urlMap
 	urlMap[keyURL] = urlString
 	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
 	mu.Unlock()
-
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
@@ -58,7 +55,49 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Shorten(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Invalid request method")
+		return
+	}
+	key, ok := r.URL.Query()["link"]
+	if ok {
+		if _, ok := urlMap[key[0]]; !ok {
+			genString := fmt.Sprint(rand.Int63n(1000))
+			urlMap[genString] = key[0]
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusAccepted)
+			linkString := fmt.Sprintf("<a href=\"http://localhost:8080/short/%s\">http://localhost:8080/short/%s</a>", genString, genString)
+			fmt.Fprintf(w, "Added shortlink\n")
+			fmt.Fprintf(w, linkString)
+			return
+		}
+		w.WriteHeader(http.StatusConflict)
+		fmt.Fprintf(w, "Already have this link")
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	fmt.Fprintf(w, "Failed to add link")
+	return
+}
 func Increase(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	pathArgs := strings.Split(path, "/")
+	log.Printf("Redirected to: %s", urlMap[pathArgs[2]])
+
+	http.Redirect(w, r, urlMap[pathArgs[2]], http.StatusPermanentRedirect)
+
+	return
+}
+
+func increase(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Invalid request method")
+		return
+	}
 	id := chi.URLParam(r, "id")
 	log.Printf("id- %s", id)
 	if id == "" {
