@@ -60,7 +60,6 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
-
 	id := chi.URLParam(r, "id")
 	log.Printf("id- %s", id)
 	if id == "" {
@@ -69,9 +68,14 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsedURL, err := url.Parse(id)
-	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
+	if err != nil {
 		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
 		return
+	}
+
+	// Проверяем наличие схемы протокола
+	if parsedURL.Scheme == "" {
+		parsedURL.Scheme = "http"
 	}
 
 	// Ищем оригинальный URL в urlMap
@@ -84,13 +88,14 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNotFound)
 		return
 	}
+
 	decodedURL, err := url.QueryUnescape(originalURL)
 	if err != nil {
 		http.Error(w, "Ошибка при декодировании URL", http.StatusInternalServerError)
 		return
 	}
-	// Добавляем протокол "http://" перед оригинальным URL
-	fullURL := "http://" + decodedURL
+
+	fullURL := parsedURL.Scheme + "://" + decodedURL
 
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", fullURL)
