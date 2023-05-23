@@ -30,6 +30,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 			return
 		}*/
 	// считываем данные из тела запроса
+
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
@@ -59,14 +60,16 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
+
 	id := chi.URLParam(r, "id")
 	log.Printf("id- %s", id)
 	if id == "" {
 		http.Error(w, "параметр id пуст", http.StatusBadRequest)
 		return
 	}
+
 	parsedURL, err := url.Parse(id)
-	if err != nil || parsedURL.Scheme == "" {
+	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
 		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
 		return
 	}
@@ -78,7 +81,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	if !ok {
-		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNoContent)
+		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNotFound)
 		return
 	}
 	decodedURL, err := url.QueryUnescape(originalURL)
