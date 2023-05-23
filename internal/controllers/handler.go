@@ -87,7 +87,9 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//возвращаем оригинальный URL
-	http.Redirect(w, r, decodedURL, http.StatusTemporaryRedirect)
+	//http.Redirect(w, r, decodedURL, http.StatusTemporaryRedirect)
+	w.Header().Set("Location", decodedURL)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
