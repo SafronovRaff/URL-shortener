@@ -85,7 +85,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	if !ok {
-		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusBadRequest)
+		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNoContent)
 		return
 	}
 
