@@ -24,12 +24,6 @@ var urlMap = make(map[string]string)            //используется дл�
 var mu sync.Mutex
 
 func Shorten(w http.ResponseWriter, r *http.Request) {
-
-	/*	//проверяем, что метод запроса является POST
-		if r.Method != http.MethodPost {
-			http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
-			return
-		}*/
 	// считываем данные из тела запроса
 
 	b, err := io.ReadAll(r.Body)
