@@ -90,9 +90,11 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ошибка при декодировании URL", http.StatusInternalServerError)
 		return
 	}
+	// Добавляем протокол "http://" перед оригинальным URL
+	fullURL := "http://" + decodedURL
 
 	// Возвращаем оригинальный URL
-	w.Header().Set("Location", decodedURL)
+	w.Header().Set("Location", fullURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
