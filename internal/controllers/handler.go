@@ -67,8 +67,9 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "параметр id пуст", http.StatusBadRequest)
 		return
 	}
+	parsedURL, err := url.ParseRequestURI(id)
 
-	parsedURL, err := url.Parse(id)
+	//parsedURL, err := url.Parse(id)
 	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
 		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
 		return
