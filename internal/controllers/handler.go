@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 )
@@ -65,30 +64,32 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "параметр id пуст", http.StatusBadRequest)
 		return
 	}
+	/*
+		// Добавляем схему протокола, если она отсутствует
+		if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
+			id = "http://" + id
+		}
 
-	// Добавляем схему протокола, если она отсутствует
-	if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
-		id = "http://" + id
-	}
+		parsedURL, err := url.Parse(id)
+		if err != nil {
+			http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
+			return
+		}
 
-	parsedURL, err := url.Parse(id)
-	if err != nil {
-		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
-		return
-	}
-
-	// Декодируем URL
-	decodedURL := parsedURL.String()
-	decodedURL, err = url.PathUnescape(decodedURL)
-	if err != nil {
-		http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
-		return
-	}
-
+		// Декодируем URL
+		decodedURL := parsedURL.String()
+		decodedURL, err = url.PathUnescape(decodedURL)
+		if err != nil {
+			http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
+			return
+		}
+	*/
 	// Ищем оригинальный URL в urlMap
 	mu.Lock()
-	originalURL, ok := urlMap[decodedURL]
-	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
+	// originalURL, ok := urlMap[decodedURL]
+	originalURL, ok := urlMap[id]
+
+	//log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
 	mu.Unlock()
 
 	if !ok {
