@@ -59,13 +59,6 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
-	/*//проверяем, что метод запроса является Get
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
-		return
-	}*/
-	//считываем id
-
 	id := chi.URLParam(r, "id")
 	log.Printf("id- %s", id)
 	if id == "" {
@@ -80,17 +73,21 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 
 	//ищем в мапе оригинальный URL
 	mu.Lock()
-	shortURL, ok := urlMap[id]
-	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, shortURL, ok)
+	originalURL, ok := urlMap[id]
+	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, originalURL, ok)
 	mu.Unlock()
 
 	if !ok {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNoContent)
 		return
 	}
+	decodedURL, err := url.QueryUnescape(originalURL)
+	if err != nil {
+		log.Fatalf("Ошибка при декодировании URL: %s", err.Error())
+	}
 
 	//возвращаем оригинальный URL
-	http.Redirect(w, r, shortURL, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, decodedURL, http.StatusTemporaryRedirect)
 }
 
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
