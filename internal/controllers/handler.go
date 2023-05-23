@@ -78,7 +78,8 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Декодируем URL
-	decodedURL, err := url.PathUnescape(parsedURL.String())
+	decodedURL := parsedURL.String()
+	decodedURL, err = url.PathUnescape(decodedURL)
 	if err != nil {
 		http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
 		return
