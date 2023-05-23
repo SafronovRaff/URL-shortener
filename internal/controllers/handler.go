@@ -71,7 +71,7 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//ищем в мапе оригинальный URL
+	// Ищем оригинальный URL в urlMap
 	mu.Lock()
 	originalURL, ok := urlMap[id]
 	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", id, originalURL, ok)
@@ -83,11 +83,11 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 	decodedURL, err := url.QueryUnescape(originalURL)
 	if err != nil {
-		log.Fatalf("Ошибка при декодировании URL: %s", err.Error())
+		http.Error(w, "Ошибка при декодировании URL", http.StatusInternalServerError)
+		return
 	}
 
-	//возвращаем оригинальный URL
-	//http.Redirect(w, r, decodedURL, http.StatusTemporaryRedirect)
+	// Возвращаем оригинальный URL
 	w.Header().Set("Location", decodedURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
