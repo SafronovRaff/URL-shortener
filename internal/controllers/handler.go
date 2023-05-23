@@ -61,35 +61,49 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Invalid request method")
 		return
 	}
-	key, ok := r.URL.Query()["link"]
-	if ok {
-		if _, ok := urlMap[key[0]]; !ok {
-			genString := fmt.Sprint(rand.Int63n(1000))
-			urlMap[genString] = key[0]
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusAccepted)
-			linkString := fmt.Sprintf("<a href=\"http://localhost:8080/short/%s\">http://localhost:8080/short/%s</a>", genString, genString)
-			fmt.Fprintf(w, "Added shortlink\n")
-			fmt.Fprintf(w, linkString)
-			return
-		}
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprintf(w, "Already have this link")
+
+	url := r.FormValue("url")
+	if url == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "URL is required")
 		return
 	}
 
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintf(w, "Failed to add link")
-	return
+	for _, storedURL := range urlMap {
+		if storedURL == url {
+			w.WriteHeader(http.StatusConflict)
+			fmt.Fprintf(w, "Already have this link")
+			return
+		}
+	}
+
+	shortURL := GenerateRandomString(10)
+	urlMap[shortURL] = url
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, shortURL)
 }
 func Increase(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Invalid request method")
+		return
+	}
+
 	path := r.URL.Path
 	pathArgs := strings.Split(path, "/")
-	log.Printf("Redirected to: %s", urlMap[pathArgs[2]])
 
-	http.Redirect(w, r, urlMap[pathArgs[2]], http.StatusPermanentRedirect)
+	shortURL := pathArgs[1]
+	originalURL, ok := urlMap[shortURL]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Invalid short URL")
+		return
+	}
 
-	return
+	w.Header().Set("Location", originalURL)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func increase(w http.ResponseWriter, r *http.Request) {
