@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/SafronovRaff/URL-shortener/internal/controllers"
+	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
 	"net/http"
 )
 
@@ -9,6 +10,9 @@ import (
 // TODO: вынести хендлеры отдельно в internal/controllers
 
 func main() {
+
+	maintenance.NewMap() //создаём мапу
+
 	http.HandleFunc("/", controllers.Shorten)
 	http.HandleFunc("/{id}", controllers.Increase)
 	server := http.Server{

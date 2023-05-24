@@ -1,21 +1,16 @@
 package controllers
 
 import (
+	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
-)
-
-const (
-	letterBytes   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	letterIdxBits = 6                    //  количество бит, которые будут использоваться для представления индекса символа
-	letterIdxMask = 1<<letterIdxBits - 1 //  маска, используемая для извлечения битов индекса символа
-	letterIdxMax  = 63 / letterIdxBits   // определяет максимальное количество индексов символов, которое помещается в 63 бита
 )
 
 var src = rand.NewSource(time.Now().UnixNano()) //используется для создания генератора случайных чисел на основе текущего времени
@@ -37,12 +32,11 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	// Вывод значения URL в лог
 	log.Printf("Извлеченное значение URL: %s", urlString)
 	// Генерация случайной строки в качестве ключа
-	keyURL := GenerateRandomString(10)
-	mu.Lock()
+	keyURL := maintenance.GenerateRandomString(10)
+
 	// Добавление значения URL в urlMap
-	urlMap[keyURL] = urlString
-	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
-	mu.Unlock()
+	maintenance.NewMap().Add(keyURL, urlString)
+
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
@@ -64,35 +58,31 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "параметр id пуст", http.StatusBadRequest)
 		return
 	}
-	/*
-		// Добавляем схему протокола, если она отсутствует
-		if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
-			id = "http://" + id
-		}
 
-		parsedURL, err := url.Parse(id)
-		if err != nil {
-			http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
-			return
-		}
+	// Добавляем схему протокола, если она отсутствует
+	if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
+		id = "http://" + id
+	}
 
-		// Декодируем URL
-		decodedURL := parsedURL.String()
-		decodedURL, err = url.PathUnescape(decodedURL)
-		if err != nil {
-			http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
-			return
-		}
-	*/
+	parsedURL, err := url.Parse(id)
+	if err != nil {
+		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
+		return
+	}
+
+	// Декодируем URL
+	decodedURL := parsedURL.String()
+	decodedURL, err = url.PathUnescape(decodedURL)
+	if err != nil {
+		http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
+		return
+	}
+
 	// Ищем оригинальный URL в urlMap
-	mu.Lock()
-	// originalURL, ok := urlMap[decodedURL]
-	originalURL, ok := urlMap[id]
 
-	//log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
-	mu.Unlock()
-
-	if !ok {
+	originalURL, ok := maintenance.NewMap().Get(decodedURL)
+	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
+	if ok != nil {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNotFound)
 		return
 	}
@@ -100,21 +90,4 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", originalURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
-}
-
-// Функция генерирует случайную строку длиной "n" из  байтового слайса
-func GenerateRandomString(n int) string {
-	b := make([]byte, n)
-	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
-		if remain == 0 {
-			cache, remain = src.Int63(), letterIdxMax
-		}
-		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-			b[i] = letterBytes[idx]
-			i--
-		}
-		cache >>= letterIdxBits
-		remain--
-	}
-	return string(b)
 }
