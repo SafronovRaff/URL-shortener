@@ -43,12 +43,13 @@ func NewMap() *urlMap {
 	return &urlMap{urlmap: make(map[string]string)}
 }
 
-func (u *urlMap) Add(keyURL, urlString string) {
+func (u *urlMap) Add(keyURL, urlString string) string {
 	u.mu.Lock()
 
 	u.urlmap[keyURL] = urlString
 	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
 	u.mu.Unlock()
+	return urlString
 }
 func (u *urlMap) Get(keyURL string) (string, error) {
 	u.mu.Lock()

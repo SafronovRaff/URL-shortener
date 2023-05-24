@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 )
@@ -35,12 +34,12 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	keyURL := maintenance.GenerateRandomString(10)
 
 	// Добавление значения URL в urlMap
-	maintenance.NewMap().Add(keyURL, urlString)
+	savedURL := maintenance.NewMap().Add(keyURL, urlString)
 
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(keyURL))
+	_, err = w.Write([]byte(savedURL))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -60,28 +59,28 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Добавляем схему протокола, если она отсутствует
-	if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
-		id = "http://" + id
-	}
-
-	parsedURL, err := url.Parse(id)
-	if err != nil {
-		http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
-		return
-	}
+	//if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
+	//	id = "http://" + id
+	//}
+	//
+	//parsedURL, err := url.Parse(id)
+	//if err != nil {
+	//	http.Error(w, "недопустимый формат URL-адреса", http.StatusBadRequest)
+	//	return
+	//}
 
 	// Декодируем URL
-	decodedURL := parsedURL.String()
-	decodedURL, err = url.PathUnescape(decodedURL)
-	if err != nil {
-		http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
-		return
-	}
+	//decodedURL := parsedURL.String()
+	//decodedURL, err = url.PathUnescape(decodedURL)
+	//if err != nil {
+	//	http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
+	//	return
+	//}
 
 	// Ищем оригинальный URL в urlMap
 
-	originalURL, ok := maintenance.NewMap().Get(decodedURL)
-	log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
+	originalURL, ok := maintenance.NewMap().Get(id)
+	//log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
 	if ok != nil {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNotFound)
 		return
