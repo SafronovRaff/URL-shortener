@@ -16,17 +16,6 @@ type Result struct {
 
 var urlmap map[string]string
 
-func isValidUrl(token string) bool {
-	_, err := url.ParseRequestURI(token)
-	if err != nil {
-		return false
-	}
-	u, err := url.Parse(token)
-	if err != nil || u.Host == "" {
-		return false
-	}
-	return true
-}
 func Shorten(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "<h1>hellow</h1>")
 	//templ, _ := template.ParseFiles("templates/index.html")
