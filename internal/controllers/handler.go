@@ -14,6 +14,8 @@ type Result struct {
 	Status int
 }
 
+var urlmap map[string]string
+
 func isValidUrl(token string) bool {
 	_, err := url.ParseRequestURI(token)
 	if err != nil {
@@ -60,12 +62,15 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	keyURL := maintenance.GenerateRandomString(10)
 
 	// Добавление значения URL в urlMap
-	savedURL := maintenance.NewMap().Add(keyURL, urlString)
+	//savedURL := maintenance.NewMap().Add(keyURL, urlString)
+	urlmap = make(map[string]string)
+	urlmap[keyURL] = urlString
+	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
 
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(savedURL))
+	_, err = w.Write([]byte(urlString))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -86,7 +91,9 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "<script>location='%s';</script>", originalURL)
 
 	id := r.URL.Path
-
+	log.Printf("URL.Path: %s", id)
+	id = id[1:]
+	log.Printf("URL.Path: %s", id)
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusMethodNotAllowed)
 		return
@@ -116,16 +123,17 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	//	http.Error(w, "ошибка декодирования URL-адреса", http.StatusBadRequest)
 	//	return
 	//}
-
 	//Ищем оригинальный URL в urlMap
-
-	originalURL, ok := maintenance.NewMap().Get(id)
+	/*originalURL, ok := maintenance.NewMap().Get(id)
 	//log.Printf("Извлечен URL из urlMap. Ключ: %s, Значение: %s, Найден: %v", decodedURL, originalURL, ok)
 	if ok != nil {
 		http.Error(w, "недопустимый идентификатор URL-адреса", http.StatusNotFound)
 		return
+	}*/
+	originalURL, ok := urlmap[id]
+	if !ok {
+		http.Error(w, "url не найден", http.StatusBadRequest)
 	}
-
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", originalURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
