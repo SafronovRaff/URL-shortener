@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,7 +16,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Считываем данные из тела запроса
-	b, err := ioutil.ReadAll(r.Body)
+	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
