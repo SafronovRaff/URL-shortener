@@ -6,9 +6,6 @@ import (
 	"net/http"
 )
 
-//TODO: закоммить изменения и сделать мерж реквест(merge request), чтобы посмотреть работают ли автотесты
-// TODO: вынести хендлеры отдельно в internal/controllers
-
 func main() {
 
 	//maintenance.NewMap() //создаём мапу
