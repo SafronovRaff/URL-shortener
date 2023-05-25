@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/SafronovRaff/URL-shortener/internal/controllers"
 	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -12,12 +13,11 @@ import (
 func main() {
 
 	maintenance.NewMap() //создаём мапу
+	router := mux.NewRouter()
 
-	http.HandleFunc("/", controllers.Shorten)
-	http.HandleFunc("/{id}", controllers.Increase)
-	server := http.Server{
-		Addr: "localhost:8080",
-	}
+	router.HandleFunc("/", controllers.Shorten)
+	router.HandleFunc("/{id}", controllers.Increase)
 
-	server.ListenAndServe()
+	http.ListenAndServe(":8080", router)
+
 }

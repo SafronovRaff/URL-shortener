@@ -51,8 +51,10 @@ func (u *urlMap) Add(keyURL, urlString string) string {
 	u.mu.Unlock()
 	return urlString
 }
+
 func (u *urlMap) Get(keyURL string) (string, error) {
 	u.mu.Lock()
+
 	orl, ok := u.urlmap[keyURL]
 	if !ok {
 		return "", errors.New("url не найден")
