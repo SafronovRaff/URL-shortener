@@ -61,7 +61,8 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(string(body))
+	b := string(body)
+	b = "http://localhost:8080/" + b
+	fmt.Println(b)
 
 }

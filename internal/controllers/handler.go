@@ -70,7 +70,8 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	// возвращаем сокращенный URL
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(urlString))
+
+	_, err = w.Write([]byte(keyURL))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -93,18 +94,18 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path
 	log.Printf("URL.Path: %s", id)
 	id = id[1:]
-	log.Printf("URL.Path: %s", id)
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET requests are allowed!", http.StatusMethodNotAllowed)
-		return
-	}
-	//id := chi.URLParam(r, "id")
-	//log.Printf("id- %s", id)
-	//if id == "" {
-	//	http.Error(w, "параметр id пуст", http.StatusBadRequest)
+	//log.Printf("URL.Path: %s", id)
+	//if r.Method != http.MethodGet {
+	//	http.Error(w, "Only GET requests are allowed!", http.StatusMethodNotAllowed)
 	//	return
 	//}
-
+	////id := chi.URLParam(r, "id")
+	////log.Printf("id- %s", id)
+	////if id == "" {
+	////	http.Error(w, "параметр id пуст", http.StatusBadRequest)
+	////	return
+	////}
+	//
 	////Добавляем схему протокола, если она отсутствует
 	//if !strings.HasPrefix(id, "http://") && !strings.HasPrefix(id, "https://") {
 	//	id = "http://" + id
@@ -131,10 +132,12 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 		return
 	}*/
 	originalURL, ok := urlmap[id]
+	log.Printf("originalURL: %s", originalURL)
 	if !ok {
 		http.Error(w, "url не найден", http.StatusBadRequest)
 	}
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", originalURL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
+	//http.Redirect(w, r, originalURL, http.StatusTemporaryRedirect)
 }
