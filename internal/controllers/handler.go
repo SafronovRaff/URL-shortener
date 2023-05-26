@@ -53,7 +53,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	//}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(keyURL))
+	w.Write([]byte("http://localhost:8080/" + keyURL))
 
 }
 
