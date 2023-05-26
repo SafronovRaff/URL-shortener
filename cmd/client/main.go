@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 	b := string(body)
-	b = "http://localhost:8080/" + b
+	//*b = "http://localhost:8080/" + b
 	fmt.Println(b)
 
 }
