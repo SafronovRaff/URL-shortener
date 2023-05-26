@@ -12,15 +12,14 @@ package main
 //
 //}
 import (
+	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
 	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 var urls = make(map[string]string)
-var id int
 
 func ShortURL(w http.ResponseWriter, r *http.Request) {
 	b, err := io.ReadAll(r.Body)
@@ -31,9 +30,10 @@ func ShortURL(w http.ResponseWriter, r *http.Request) {
 
 	url := string(b)
 	//key := genShortenURL(url)
-	key := strconv.Itoa(id)
+	key := maintenance.GenerateRandomString(10)
+
 	urls[key] = url
-	id++
+
 	log.Println(urls)
 	w.Header().Set("content-type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
