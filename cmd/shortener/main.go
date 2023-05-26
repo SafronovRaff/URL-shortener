@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/SafronovRaff/URL-shortener/internal/controllers"
+	"github.com/SafronovRaff/URL-shortener/internal/storage"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 
 func main() {
 
-	//maintenance.NewMap() //создаём мапу
+	storage.NewMap() //создаём мапу
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", controllers.Shorten).Methods(http.MethodPost)
