@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"github.com/SafronovRaff/URL-shortener/internal/maintenance"
-	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 )
 
-var urlmap = make(map[string]string)
+var urlmap map[string]string
 
 func Shorten(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -21,14 +21,14 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
+
 	// Преобразуем данные в строку URL
-	/*urlString, err := url.PathUnescape(string(b))
+	urlString, err := url.PathUnescape(string(b))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}*/
-	urlString := string(b)
+	}
+
 	// Вывод значения URL в лог
 	log.Printf("Извлеченное значение URL: %s", urlString)
 
@@ -37,6 +37,7 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 
 	// Добавление значения URL в urlMap
 	//savedURL := maintenance.NewMap().Add(keyURL, urlString)
+	urlmap = make(map[string]string)
 
 	urlmap[keyURL] = urlString
 	log.Printf("Добавлен URL в urlMap. Ключ: %s, Значение: %s", keyURL, urlString)
@@ -52,21 +53,17 @@ func Shorten(w http.ResponseWriter, r *http.Request) {
 	//}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("http://localhost:8080/" + keyURL))
+	w.Write([]byte(keyURL))
 
 }
 
 func Increase(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
-
-	id := vars["id"]
-
 	if r.Method != http.MethodGet {
 		http.Error(w, "Недопустимый метод запроса", http.StatusBadRequest)
 		return
 	}
-
+	id := r.URL.Path[1:]
 	log.Printf("URL.Path: %s", id)
 
 	originalURL, ok := urlmap[id]
@@ -77,6 +74,6 @@ func Increase(w http.ResponseWriter, r *http.Request) {
 
 	// Возвращаем оригинальный URL
 	w.Header().Set("Location", originalURL)
-	http.Redirect(w, r, originalURL, http.StatusTemporaryRedirect)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 
 }
