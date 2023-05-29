@@ -12,6 +12,17 @@ const (
 	letterIdxMax  = 63 / letterIdxBits   // определяет максимальное количество индексов символов, которое помещается в 63 бита
 )
 
+type generate struct {
+}
+
+func NewGenerate() *generate {
+	return &generate{}
+}
+
+func (g *generate) GenerateRandom() string {
+	return GenerateRandomString(10)
+}
+
 var src = rand.NewSource(time.Now().UnixNano()) //используется для создания генератора случайных чисел на основе текущего времени
 
 // Функция генерирует случайную строку длиной "n" из  байтового слайса
