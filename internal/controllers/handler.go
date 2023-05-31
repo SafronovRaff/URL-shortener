@@ -54,11 +54,13 @@ func (h *Handlers) Increase(w http.ResponseWriter, r *http.Request) {
 	}
 	vars := mux.Vars(r)
 	id := vars["id"]
+
 	originalURL, err := h.services.IncreaseURL(id)
 	if err == nil { // Возвращаем оригинальный URL
 		log.Printf("найден originalURL: %s", originalURL)
 		w.Header().Set("Location", originalURL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
 	} else {
 		http.Error(w, "originalURL не найден", http.StatusBadRequest)
 	}

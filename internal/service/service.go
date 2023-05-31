@@ -16,14 +16,14 @@ func (s *service) ShortenedURL(b string) (string, error) {
 	// Генерация случайной строки в качестве ключа
 	keyURL := s.generate.GenerateRandom()
 	// Добавление значения URL в urlMap
-	s.urlhandler.Add(urlString, keyURL)
+	s.urlhandler.Add(keyURL, urlString)
 	return keyURL, err
 }
 
 func (s *service) IncreaseURL(id string) (string, error) {
 	originalURL, err := s.urlhandler.Get(id)
 	if err != nil {
-		log.Printf("НЕ найден URL в urlMap. Ключ: %s ", originalURL)
+		log.Printf("НЕ найден URL в urlMap. Ключ: %s", originalURL)
 		return "", err
 	}
 	return originalURL, nil
