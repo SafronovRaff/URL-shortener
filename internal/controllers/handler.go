@@ -22,7 +22,7 @@ func NewHandlers(services services) *Handlers {
 
 func (h *Handlers) Shortened(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Недопустимый метод запроса", http.StatusBadRequest)
+		http.Error(w, "недопустимый метод запроса", http.StatusBadRequest)
 		return
 	}
 	// Считываем данные из тела запроса
