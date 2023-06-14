@@ -47,12 +47,6 @@ func TestHandlers_Increase(t *testing.T) {
 	t.Run("действительный запрос", func(t *testing.T) {
 		//фиктивный Get с добавлением переменно	 пути
 		req := httptest.NewRequest(http.MethodGet, "/increase/kjdnakdka", nil)
-		/*	//задаем значение переменной "id" в URL
-			req = mux.SetURLVars(req, map[string]string{"id": "kjdnakdka"})
-			assert.NoError(t, err, "не удалось создать запрос")
-			// переменная для запись фиктивного ответа на сервер
-			recorder := httptest.NewRecorder()
-		*/
 
 		recorder := httptest.NewRecorder()
 
