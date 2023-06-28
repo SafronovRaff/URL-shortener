@@ -87,9 +87,16 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Недопустимый Content-Type", http.StatusBadRequest)
 		return
 	}
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// Читаем тело запроса
 	var req ShortenRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
+
+	err = json.Unmarshal(b, &req)
 	if err != nil {
 		http.Error(w, "Не верное тело запроса", http.StatusBadRequest)
 		return
