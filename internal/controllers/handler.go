@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"io"
 	"log"
@@ -14,6 +15,14 @@ type services interface {
 
 type Handlers struct {
 	services services
+}
+
+type ShortenRequest struct {
+	URL string `json:"url"`
+}
+
+type ShortenResponse struct {
+	Result string `json:"result"`
 }
 
 func NewHandlers(services services) *Handlers {
@@ -65,4 +74,41 @@ func (h *Handlers) Increase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "originalURL не найден", http.StatusBadRequest)
 	}
 
+}
+
+func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "недопустимый метод запроса", http.StatusBadRequest)
+		return
+	}
+	// Проверяем Content-Type заголовок на правильное значение
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "application/json" {
+		http.Error(w, "Недопустимый Content-Type", http.StatusBadRequest)
+		return
+	}
+	// Читаем тело запроса
+	var req ShortenRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Не верное тело запроса", http.StatusBadRequest)
+		return
+	}
+	shortURL, err := h.services.ShortenedURL(req.URL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Формируем ответ в виде JSON
+	resp := ShortenResponse{Result: shortURL}
+	jsonResp, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, "Не удалось организовать ответ", http.StatusInternalServerError)
+		return
+	}
+	// Устанавливаем правильный Content-Type заголовок
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResp)
 }

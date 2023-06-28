@@ -20,6 +20,8 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", handlers.Shortened).Methods(http.MethodPost)
+	router.HandleFunc("/api/shorten", handlers.ShortenHandler).Methods(http.MethodPost)
+
 	router.HandleFunc("/{id}", handlers.Increase).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
