@@ -109,6 +109,6 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// Устанавливаем правильный Content-Type заголовок
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResp)
 }
