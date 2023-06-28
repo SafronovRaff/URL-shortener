@@ -48,7 +48,7 @@ func (h *Handlers) Shortened(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	_, err = w.Write([]byte("http://localhost:8080/" + keyURL))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

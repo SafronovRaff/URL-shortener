@@ -22,7 +22,7 @@ func main() {
 	router.HandleFunc("/", handlers.Shortened).Methods(http.MethodPost)
 	router.HandleFunc("/{id}", handlers.Increase).Methods(http.MethodGet)
 
-	//router.HandleFunc("/api/shorten", handlers.ShortenHandler).Methods(http.MethodPost)
+	router.HandleFunc("/api/shorten", handlers.ShortenHandler).Methods(http.MethodPost)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 
