@@ -48,7 +48,7 @@ func (h *Handlers) Shortened(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write([]byte("http://localhost:8080/" + keyURL))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -102,13 +102,13 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Формируем ответ в виде JSON
 	resp := ShortenResponse{Result: shortURL}
-	jsonResp, err := json.Marshal(resp)
+	jsonResp, err := json.Marshal(&resp)
 	if err != nil {
-		http.Error(w, "Не удалось организовать ответ", http.StatusInternalServerError)
+		http.Error(w, "Не удалось организовать ответ", http.StatusBadRequest)
 		return
 	}
 	// Устанавливаем правильный Content-Type заголовок
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResp)
 }
