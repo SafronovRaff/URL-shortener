@@ -80,13 +80,13 @@ func TestHandlers_ShortenHandler(t *testing.T) {
 		// Создаем тестовый JSON-запрос
 		requestBody := `{"URL":"http://example.com"}`
 		// Создаем тестовый запрос с методом POST и правильным Content-Type
-		req := httptest.NewRequest(http.MethodPost, "/shorten", strings.NewReader(requestBody))
+		req := httptest.NewRequest(http.MethodPost, "/api/shorten", strings.NewReader(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		recorder := httptest.NewRecorder()
 		// Обработчик
 		h.ShortenHandler(recorder, req)
 		// Проверяем код состояния ответа
-		assert.Equal(t, http.StatusOK, recorder.Code, "неожиданный код состояния, ожидал 200")
+		assert.Equal(t, http.StatusCreated, recorder.Code, "неожиданный код состояния, ожидал 201")
 		// Проверяем Content-Type заголовок
 		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"), "неожиданный Content-Type заголовка")
 		// Читаем тело ответа
