@@ -109,7 +109,7 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Формируем ответ в виде JSON
 	resp := ShortenResponse{Result: shortURL}
-	jsonResp, err := json.Marshal(&resp)
+	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, "Не удалось организовать ответ", http.StatusBadRequest)
 		return
