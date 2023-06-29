@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log"
 	"net/url"
 )
@@ -27,6 +28,10 @@ func NewService(generate generate, urlHandler URLhand) *Service {
 }
 
 func (s *Service) ShortenedURL(b string) (string, error) {
+	// Проверка входных данных
+	if b == "" {
+		return "", errors.New("пустой URL-адрес")
+	}
 	// Преобразуем данные в строку URL
 	urlString, err := url.PathUnescape(string(b))
 	if err != nil {
@@ -38,7 +43,7 @@ func (s *Service) ShortenedURL(b string) (string, error) {
 	keyURL := s.generate.GenerateRandom()
 	// Добавление значения URL в urlMap
 	s.urlHandler.Add(keyURL, urlString)
-	return keyURL, err
+	return keyURL, nil
 }
 
 func (s *Service) IncreaseURL(id string) (string, error) {
